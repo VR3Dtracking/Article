@@ -98,7 +98,10 @@ Nowadays, we can find different sensors which enable to position a real object i
 
 
 \section{INTRODUCTION}
-There are many techniques for 3D positioning. Firstly, some technique uses multiple camera setup like in \cite{lee2013real}. Then, some are using this visual information with inertial information in order to fusion the data like in \cite{bleser2009advanced} using the principle of data fusion as described in \cite{chair1986optimal}. One of the issue of this kind of application is the cost of the cameras. This paper is focus on another principle that is inspired from the HTC Vive. This technique uses light house scanning to track the object as in \cite{kreylos2016lighthouse}. This article will firstly explain the lighthouse operating principle in section 2. Then, it will explain the hive track operating principle in section 3. Thereafter, it will present the modelling and the simulation made to test the sensor fusion for 3D positioning in section 4 and finally it will present the results in section 5. This paper is related to the project : \url{https://hivetracker.github.io/} and it also have his own project github at \url{https://github.com/VR3Dtracking}.
+There are many techniques for 3D positioning. Firstly, some technique uses multiple camera setup like in \cite{lee2013real}, where they detect and track an object by using the geometry between the target object and cameras to finally provide a 3D positioning of the object. The main contribution was the refinement stage that correct detection and tracking error by imposing geometric constrain. However, the setup is long and cannot be made in any room quickly. \newline
+Then, some are using this visual information with inertial information in order to fusion the data like in \cite{bleser2009advanced} using the principle of data fusion as described in \cite{chair1986optimal}, where they each decision is weighted according to the reliability i.e the precision of the detectors. In this configuration, they rely on a 3D model of the scene that enables to predict the appearances of the features by rendering the model using the prediction data of the
+sensor fusion filter. Their paper presented a markerless vision-inertial tracking system that works in small and large scale rooms, with good or bad luminosity. The final system is efficient and robust but one of the main issue of this kind of application is the cost of the cameras.\newline
+This paper is focus on another principle that is inspired from the HTC Vive. This technique uses light house scanning to track the object as in \cite{kreylos2016lighthouse}. This article will firstly explain the lighthouse operating principle in section 2. Then, it will explain the hive track operating principle in section 3. Thereafter, it will present the modelling and the simulation made to test the sensor fusion for 3D positioning in section 4 and finally it will present the results in section 5. This paper is related to the project : \url{https://hivetracker.github.io/} and it also have his own project github at \newline \url{https://github.com/VR3Dtracking}.
 
 
 
@@ -106,7 +109,7 @@ There are many techniques for 3D positioning. Firstly, some technique uses multi
 The lighthouse tracking system uses the principle of triangulation to position an object. This technique can be used to approximate the distance between two point that cannot be measured like it's shown in figure [\ref{plage}], where the two person can measure the distance of the rock by knowing the distance between each others and their angle when they look at the stone.
 \begin{figure}
 \centering
-\includegraphics[width=3in,height=3in]{Image/plage.png}
+\includegraphics[width=3.5in,height=1.5in]{Image/plage.png}
 \caption{Illustration of the use of the triangulation method}
 \label{plage}
 \end{figure}
