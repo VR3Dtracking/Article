@@ -98,19 +98,20 @@ Nowadays, we can find different sensors which enable to position a real object i
 
 
 \section{INTRODUCTION}
+This article is the continuation of \cite{cedric}, where the whole project has been initiate and developed. This article provide the simulation of the presented project that will also be presented here. \newline
 There are many techniques for 3D positioning. Firstly, some technique uses multiple camera setup like in \cite{lee2013real}, where they detect and track an object by using the geometry between the target object and cameras to finally provide a 3D positioning of the object. The main contribution was the refinement stage that correct detection and tracking error by imposing geometric constrain. However, the setup is long and cannot be made in any room quickly. \newline
 Then, some are using this visual information with inertial information in order to fusion the data like in \cite{bleser2009advanced} using the principle of data fusion as described in \cite{chair1986optimal}, where they each decision is weighted according to the reliability i.e the precision of the detectors. In this configuration, they rely on a 3D model of the scene that enables to predict the appearances of the features by rendering the model using the prediction data of the
 sensor fusion filter. Their paper presented a markerless vision-inertial tracking system that works in small and large scale rooms, with good or bad luminosity. The final system is efficient and robust but one of the main issue of this kind of application is the cost of the cameras.\newline
-This paper is focus on another principle that is inspired from the HTC Vive. This technique uses light house scanning to track the object as in \cite{kreylos2016lighthouse}. This article will firstly explain the lighthouse operating principle in section 2. Then, it will explain the hive track operating principle in section 3. Thereafter, it will present the modelling and the simulation made to test the sensor fusion for 3D positioning in section 4 and finally it will present the results in section 5. This paper is related to the project : \url{https://hivetracker.github.io/} and it also have his own project github at \newline \url{https://github.com/VR3Dtracking}.
+This paper is focus on another principle that is inspired from the HTC Vive. This technique uses light house scanning to track the object as in \cite{kreylos2016lighthouse}. This article will firstly explain the lighthouse operating principle in section 2. Then, it will explain the hive track operating principle in section 3. Thereafter, it will present the modelling and the simulation made to test the sensor fusion for 3D positioning in section 4 and finally it will present the results in section 5. This paper is related to the project : https://hivetracker.github.io, and it also have his own project github at \newline https://github.com/VR3Dtracking.
 
 
 
-\section{Lighthouse operating principle}
+\section{Operating principle}
 The lighthouse tracking system uses the principle of triangulation to position an object. This technique can be used to approximate the distance between two point that cannot be measured like it's shown in figure [\ref{plage}], where the two person can measure the distance of the rock by knowing the distance between each others and their angle when they look at the stone.
 \begin{figure}
 \centering
-\includegraphics[width=3.5in,height=1.5in]{Image/plage.png}
-\caption{Illustration of the use of the triangulation method}
+\includegraphics[scale=0.35]{Image/plage.png}
+\caption{Illustration of the use of the triangulation method, two person look at a rock and obtain an approximate angle between their gaze and the other person $\alpha$ and $\beta$. Then, knowing the distance $d$ between each others, the distance between the beach and the rock can get measured.}
 \label{plage}
 \end{figure}
 The lighthouse system is the same, but it's done in 3 dimension. So its main objective is to obtain four angles to be able to compute the position of an object. 
@@ -119,14 +120,14 @@ There are some requirement for positioning an object by using the light House. F
 \begin{figure}
 \centering
 \includegraphics[width=1.0\columnwidth]{Image/LH1.png}
-\caption{Demonstration of a lighthouse positioning system, where the two scanning plan (horizontal and vertical) can be seen}
+\caption{Demonstration of a lighthouse positioning system, where the two scanning plan (horizontal and vertical), in red and green can be seen \cite{cedric}}
 \label{plage}
 \end{figure}
 This is how the system works: two (or more) lighthouses will be positioned on the opposite corner of the room. The object, that have a photo-diode on it, will be in this room. One of the lighthouse (Lighthouse A) will emit a flash that the photo-diode will receive. Then it will sweep a laser plan left to right (vertically). After it scanned half a period, it will emit another flash and then sweep another laser plan down to top (horizontally) for another half a period. The other lighthouse (lighthouse B) will do exactly the same right after the horizontal sweeping of the first lighthouse. After this, the value of the photo-diode throw time will be like figure [\ref{photo}].
 \begin{figure}
 \centering
 \includegraphics[width=1.0\columnwidth]{Image/Signal2.png}
-\caption{Light signal sequences (4 are shown): wide pulses are base station flashes and short pulses are laser plane scans.}
+\caption{Light signal sequences (4 are shown): wide pulses are base station flashes and short pulses are laser plane scans. One lighthouse takes 8.3333 $\mu$seconds to sweep a semi-period, therefor, a complete positioning takes about 35 $\mu$seconds \cite{cedric}}
 \label{photo}
 \end{figure}
 The lighthouse requires $8.333 \mu s$ to sweep a semi-period, a total of $33.333 \mu s$ is therefor required for a full positioning.
@@ -136,20 +137,20 @@ Figure [\ref{box}] shows the landmark of the word as it will be used for the fol
 \begin{figure}
 \centering
 \includegraphics[width=1.0\columnwidth]{Image/box.png}
-\caption{A modeling of the room and it's landmark}
+\caption{A modeling of the room and it's landmark. The box represent the Room, the roof is represented in purple, and the two lighthouses are positioned in the opposite corner of the room. The ground is represented in orange and the landmark positioned in the middle of the box is the Landmark of the world. In this case, if the box cube with a dimension of 1, then the two lighthouses are positioned in (-0.5,0.5,-0.5) and (0.5,0.5,0.5)}
 \label{box}
 \end{figure}
 \begin{figure}
 \centering
 \includegraphics[width=0.6\columnwidth]{Image/lighthouse.png}
-\caption{A modeling of the lighthouse and its landmark}
+\caption{A modeling of the lighthouse and its landmark, the landmark is positioned where the laser is emitted. The direction vector of the sweeping plan when the lighthouse does the horizontal sweep starts at $+z$ and ends at $-z$ passing by $y$. The direction vector of the sweeping plan when the lighthouse does the horizontal sweep starts at $-x$ and ends at $+x$ passing also by $y$ }
 \label{lighthouse}
 \end{figure}
 If this method can detect the object everywhere one the box, there is one line where the object cannot be positioned and this line is the one between the two lighthouses. to be able to eliminate the ambiguity, a third lighthouse will be needed. However, since this line is one the roof of the room, this issue can be ignored (figure [\ref{bad}])
 \begin{figure}
 \centering
 \includegraphics[width=1.0\columnwidth]{Image/boxundefined.png}
-\caption{The line where the object cannot be positioned}
+\caption{The line where the object cannot be positioned. The black box represents the room and the lighthouses with the red squares. Since the triangulation uses the intersection of two lines, it can't find a point of intersection when the two lines are mixed. The line on witch the position of the object cannot be detected is the green one}
 \label{bad}
 \end{figure}
 
@@ -263,7 +264,7 @@ However, if in the theory this point exist exactly, it is really rare that two l
 \begin{figure}
 \centering
 \includegraphics[width=1.0\columnwidth]{Image/interscetion.png}
-\caption{Non-existent intersection point trick where $A$ and $B$ are the two lightHouses and $MN$ the perpendicular line}
+\caption{Non-existent intersection point trick where $A$ and $B$ are the two lightHouses and $MN$ the perpendicular line. \cite{cedric}}
 \label{inter}
 \end{figure}
 Let $A$ and $B$ be the lighthouse coordinate and $u$ and $v$ their respectiv LightHouse-object vector. The two lines that come from these values (the red nand the blue in [\ref{inter}]) are represented by:
@@ -275,7 +276,8 @@ $$
 There is then two equation with two unknown that are $\lambda$ and $\nu$. Since the middle of the $MN$ is the most representative point for this probleme, the coordinate $I$ that represents the estimated position of the object will be:
 
 $$
- I ~=~[ (a1 ~+ ~b1~ +~ \lambda u1 ~+~ \nu v1) / 2~ ,~   (a2 + b2 + \lambda u2 + \nu v2) / 2 ~,  ~ (a3~ +~ b3~ +~ \lambda u3 ~+~ \nu v3) / 2 ]
+ I ~=~[ (a1 ~+ ~b1~ +~ \lambda u1 ~+~ \nu v1) / 2~ ,~   (a2 + b2 + \lambda u2 + \nu v2) / 2 ~,$$
+ $$~ (a3~ +~ b3~ +~ \lambda u3 ~+~ \nu v3) / 2 ]
  $$
  
  \subsection{Object localization from the acceleration}
