@@ -102,77 +102,59 @@ This article is the continuation of \cite{cedric}, where the whole project has b
 There are many techniques for 3D positioning. Firstly, some technique uses multiple camera setup like in \cite{lee2013real}, where they detect and track an object by using the geometry between the target object and cameras to finally provide a 3D positioning of the object. The main contribution was the refinement stage that correct detection and tracking error by imposing geometric constrain. However, the setup is long and cannot be made in any room quickly. \newline
 Then, some are using this visual information with inertial information in order to fusion the data like in \cite{bleser2009advanced} using the principle of data fusion as described in \cite{chair1986optimal}, where they each decision is weighted according to the reliability i.e the precision of the detectors. In this configuration, they rely on a 3D model of the scene that enables to predict the appearances of the features by rendering the model using the prediction data of the
 sensor fusion filter. Their paper presented a markerless vision-inertial tracking system that works in small and large scale rooms, with good or bad luminosity. The final system is efficient and robust but one of the main issue of this kind of application is the cost of the cameras.\newline
-This paper is focus on another principle that is inspired from the HTC Vive. This technique uses light house scanning to track the object as in \cite{kreylos2016lighthouse}. This article will firstly explain the lighthouse operating principle in section 2. Then, it will explain the hive track operating principle in section 3. Thereafter, it will present the modelling and the simulation made to test the sensor fusion for 3D positioning in section 4 and finally it will present the results in section 5. This paper is related to the project : https://hivetracker.github.io, and it also have his own project github at \newline https://github.com/VR3Dtracking.
+This paper is focus on another principle that is inspired from the HTC Vive. This technique uses lighthouse scanning to track the object as in \cite{kreylos2016lighthouse}. \newline
+
+This article will firstly explain the lighthouse operating principle in section 2. Then, it will explain the hive track operating principle in section 3. Thereafter, it will present the modelling and the simulation made to test the sensor fusion for 3D positioning in section 4 and finally it will present the results in section 5. This paper is related to the project : https://hivetracker.github.io, and it also have his own project github at \newline https://github.com/VR3Dtracking.
 
 
 
-\section{Operating principle}
-The lighthouse tracking system uses the principle of triangulation to position an object. This technique can be used to approximate the distance between two point that cannot be measured like it's shown in figure [\ref{plage}], where the two person can measure the distance of the rock by knowing the distance between each others and their angle when they look at the stone.
-\begin{figure}
-\centering
-\includegraphics[scale=0.35]{Image/plage.png}
-\caption{Illustration of the use of the triangulation method, two person look at a rock and obtain an approximate angle between their gaze and the other person $\alpha$ and $\beta$. Then, knowing the distance $d$ between each others, the distance between the beach and the rock can get measured.}
-\label{plage}
-\end{figure}
-The lighthouse system is the same, but it's done in 3 dimension. So its main objective is to obtain four angles to be able to compute the position of an object. 
-There are some requirement for positioning an object by using the light House. First, a room needs to be defined where the object can be tracked only in this space. Then, the object needs to have photo-diodes on him, because the lighthouse will emit infra red light (that can be presented by a laser) and get the value of the angle from the data of the photo-diode. Finally, the two lighthouses needs to be synchronized in order to have workable values.
-\bigbreak
-\begin{figure}
-\centering
-\includegraphics[width=1.0\columnwidth]{Image/LH1.png}
-\caption{Demonstration of a lighthouse positioning system, where the two scanning plan (horizontal and vertical), in red and green can be seen \cite{cedric}}
-\label{plage}
-\end{figure}
-This is how the system works: two (or more) lighthouses will be positioned on the opposite corner of the room. The object, that have a photo-diode on it, will be in this room. One of the lighthouse (Lighthouse A) will emit a flash that the photo-diode will receive. Then it will sweep a laser plan left to right (vertically). After it scanned half a period, it will emit another flash and then sweep another laser plan down to top (horizontally) for another half a period. The other lighthouse (lighthouse B) will do exactly the same right after the horizontal sweeping of the first lighthouse. After this, the value of the photo-diode throw time will be like figure [\ref{photo}].
-\begin{figure}
-\centering
-\includegraphics[width=1.0\columnwidth]{Image/Signal2.png}
-\caption{Light signal sequences (4 are shown): wide pulses are base station flashes and short pulses are laser plane scans. One lighthouse takes 8.3333 $\mu$seconds to sweep a semi-period, therefor, a complete positioning takes about 35 $\mu$seconds \cite{cedric}}
-\label{photo}
-\end{figure}
-The lighthouse requires $8.333 \mu s$ to sweep a semi-period, a total of $33.333 \mu s$ is therefor required for a full positioning.
-Time is therefor a critical information to get the angles that can be get by doing a simple proportional ratio. However, to avoid any confusion for the following calculus, it is mandatory to define a clear and precise landmark for the room and the lighthouses.
-\bigbreak
-Figure [\ref{box}] shows the landmark of the word as it will be used for the following parts, and figure [\ref{lighthouse}] shows the one of a lighthouse. As it can be seen, the vertical sweep will start from $z$ positive, pass by $y$ positive and ends in $z$ negative. For the horizontal sweep, it will start at $x$ negative, pass by $y$ positive too and ends in $x$ positive. For example, if the object is in the y axis, both sweeping will detect the object at the middle of their sweeping. \newline
-\begin{figure}
-\centering
-\includegraphics[width=1.0\columnwidth]{Image/box.png}
-\caption{A modeling of the room and it's landmark. The box represent the Room, the roof is represented in purple, and the two lighthouses are positioned in the opposite corner of the room. The ground is represented in orange and the landmark positioned in the middle of the box is the Landmark of the world. In this case, if the box cube with a dimension of 1, then the two lighthouses are positioned in (-0.5,0.5,-0.5) and (0.5,0.5,0.5)}
-\label{box}
-\end{figure}
-\begin{figure}
-\centering
-\includegraphics[width=0.6\columnwidth]{Image/lighthouse.png}
-\caption{A modeling of the lighthouse and its landmark, the landmark is positioned where the laser is emitted. The direction vector of the sweeping plan when the lighthouse does the horizontal sweep starts at $+z$ and ends at $-z$ passing by $y$. The direction vector of the sweeping plan when the lighthouse does the horizontal sweep starts at $-x$ and ends at $+x$ passing also by $y$ }
-\label{lighthouse}
-\end{figure}
-If this method can detect the object everywhere one the box, there is one line where the object cannot be positioned and this line is the one between the two lighthouses. to be able to eliminate the ambiguity, a third lighthouse will be needed. However, since this line is one the roof of the room, this issue can be ignored (figure [\ref{bad}])
-\begin{figure}
-\centering
-\includegraphics[width=1.0\columnwidth]{Image/boxundefined.png}
-\caption{The line where the object cannot be positioned. The black box represents the room and the lighthouses with the red squares. Since the triangulation uses the intersection of two lines, it can't find a point of intersection when the two lines are mixed. The line on witch the position of the object cannot be detected is the green one}
-\label{bad}
+\section{Operating principle} \label{Op}
+The introduction shows us that there are various ways to track and 3D position an object. Some of them may use the triangulation principle, where others are based on the observation made on sensors. This section will describe two methods to position an object. First, the principle of the lighthouses, also used by the HTC Vive. Then, shortly, the principle of the accelerometer sensor.
+\subsection{Lighthouse} \label{Light}
+Lighthouses are boxes that emit infrared light in a precise way. The Lighthouse Tracking System (LTS) is composed of two lighthouses, and of an object we want to track that will be equipped with a photo-diode sensitive to infrared lights. Its objective is to obtain 4 angles, which are used to compute the position of the object thanks to the triangulation. This is how the tracking system works: \newline
+Each lighthouse is fixed in the ceiling, on two opposite corner of a room. One of the lighthouse (lighthouse A) emits a flash that will be received by the photo-diode. Right after this flash, the lighthouse will scan the room with a sweeping plan in one direction (horizontally or vertically). The plan will eventually pass by the photo-diode. The speed of the scanning is known, therefor, we can obtain the time it takes to scan the room. Plus, we can easily obtain the time between the first flash and the moment the sweeping plan pass through the object by looking at the signal of the photo-diode. With a simple cross product, assuming that a full scanning is a semi-revolution, we can obtain an angle in the sweeping direction between the position of the object and the beginning of the scanning. So, from one sweeping, we obtain one angle. \newline
+Right after the end of the first sweeping, the same lighthouse emits another flash and will scan the room with another sweeping plan, this time in the other direction than the first time. If the first sweeping was a vertical sweep, then this one will be a horizontal one. By following the same procedure, we can obtain another angle to position the object. Since the lighthouse scan the room with a sweeping plan, there are multiple places for the object on which we obtain the same signals. In fact, for each angle, there is a whole plan where the object can be positioned without changing the output data on the photo-diode. Since we have two angles, which means two plans where the object can be, the object will be at the intersection of the plans, therefore, a line.
+In order to obtain a single point, we need to obtain another line passing by the object. By computing the intersection between these two lines, we will find the position of the object. This second line is obtained by putting another lighthouse (lighthouse B) working exactly the same way lighthouse A does. However, in order to have exploitable signals, the two lighthouses need to be completely synchronized. The full period is shown in figure [\ref{im:LHloop}].
+
+\begin{figure}[h!]
+  \includegraphics[scale = 0.24]{Image/LHLoop2.png}
+  \caption{Representation of the periodic operation of the Lighthouse Tracking System (LTS). It begins with the flash emission of Lighthouse A, followed by a horizontal scan, another flash and a vertical scan. It then repeats the same pattern with Lighthouse B. Throughout the operation, the LTS will switch between Lighthouse A and B in the shown order.}
+  \label{im:LHloop}
 \end{figure}
 
+Of course, in order to have a relevant sensor, the LTS needs to be fast. In fact, the sweeping plan will only scan half of a period, 180° then. This scanning takes $8.333 ms$, which means a full positioning is 4 time longer, since it needs 4 scan as seen in figure [\ref{im:LHloop}]. The flash are instantly emitted after the end of each sweeping, therefor, it doesn't make the positioning longer. In conclusion, the LTS can position an object every $33,350 ms$. \newline
+However, to position an object, we need to look at the signal obtained from the photo-diode. An estimation of what we can expect from a photo-diode in a full period is given in figure [\ref{im:signal}].
 
-\section{Hive track operating principle}
-\label{Hive}
+The ratio of time obtained with the signal acquired with the photo-diode that is positioned on the object will be used to estimate 4 angles, that will be then used to compute the position of the object. The exact way the position is computed is given in section \ref{Sim}. \newline
 
-The objective is to use the position given by the light house system that it is precise but with a slow rate and the data from the MEMS (Microelectromechanical systems) sensors from the IMU (Inertial measurement unit) which are less precise but with a fast rate and process data fusion in order to have a faster rate and a good precision. Kalman filter is using to realize this data fusion. First, let's define the state system for a 6 DOF (degrees of freedom) object. The following explanations are adapted from \cite{caron2006gps}, but it is actually classical kalman filter application. The state is :
+\begin{figure}[h!]
+  \includegraphics[scale = 0.28]{Image/signal.png}
+  \caption{Estimation of the signal acquired by a photo-diode trough time in an optimal case. Each color represents one scanning for a total of 4 scanning for the full positioning. Before each sweeping plan, a flash is emitted by the lighthouse that can be seen at the beginning of each scanning plan. The other peak around the middle of each sweeping plan represents the moment it passes trough the photo-diode.}
+  \label{im:signal}
+\end{figure}
+
+\subsection{Accelerometer} \label{Accel}
+
+The LTS can position an object precisely every $33.350 ms$. It is fast, but not enough to be relevant if a fast movement occurs. Accelerometers are sensors that estimate the acceleration of an object at any time. It can be used as a real time positioning, since it allows to follow the movement in every direction. However, it gives no information about the position of the object. Also, because of the sensitivity and the error of any sensor, the estimated position, given that we know the position at the beginning, will be less and less accurate as times passes. This means, that unlike the LTS that gave accurate positions, the accelerometer cannot be used as 3D positioning system by itself. However, it brings useful information in real time about the movement undergone by the object. \newline
+This leads to a need of fusing the LTS and the accelerometer in order to get ride of both disadvantages, i.e slowness and accuracy.
+
+\section{Sensor Fusion} \label{SF}
+
+
+The objective is to use the position given by the LTS that it is precise but with a slow rate and the data from the MicroElectroEechanical Systems (MEMS) sensors from the Inertial measurement unit (IMU) which are less precise but with a fast rate and process data fusion in order to have a faster rate and a good precision. Kalman filter is used to realize this data fusion. First, let's define the state system for a 3 degrees of freedom (DOF) object. The following explanations are adapted from \cite{caron2006gps}, but it is actually classical Kalman filter application. The state is :
+
+
 \begin{equation}
 \mathbf{X} = 
 \begin{pmatrix}
-\begin{pmatrix}
-x & \frac{dx}{dt} & \frac{d^2x}{dt^2} & \alpha & \frac{d\alpha}{dt}
-\end{pmatrix} ^T \\
-\begin{pmatrix}
-y & \frac{dy}{dt} & \frac{d^2y}{dt^2} & \beta & \frac{d\beta}{dt}
-\end{pmatrix} ^T \\
-\begin{pmatrix}
-z & \frac{dz}{dt} &  \frac{d^2z}{dt^2} & \gamma & \frac{d\gamma}{dt}
+
+x & \frac{dx}{dt} & \frac{d^2x}{dt^2} &
+y & \frac{dy}{dt} & \frac{d^2y}{dt^2} &
+z & \frac{dz}{dt} &  \frac{d^2z}{dt^2} 
 \end{pmatrix} ^T
-\end{pmatrix}
 \end{equation}
+
+
 note $dt$ the time elapsed since the last estimate. Then for an instant $k$ the estimate at $k+1$ is : 
 \begin{equation}
 \mathbf{X}(k+1) = A \mathbf{X}(k) +  \mathbf{w}(k)
@@ -183,145 +165,125 @@ with $$\mathbf{A}=
 \mathbf{F}
 \end{matrix} &
 \begin{matrix}
-\mathbf{0_{5 \times 5}}
+\mathbf{0_{3 \times 3}}
 \end{matrix} &
 \begin{matrix}
-\mathbf{0_{5 \times 5}}
+\mathbf{0_{3 \times 3}}
 \end{matrix} \\
 \begin{matrix}
-\mathbf{0_{5 \times 5}}
+\mathbf{0_{3 \times 3}}
 \end{matrix} &
 \begin{matrix}
 \mathbf{F}
 \end{matrix} &
 \begin{matrix}
-\mathbf{0_{5 \times 5}}
+\mathbf{0_{3 \times 3}}
 \end{matrix} \\
 \begin{matrix}
-\mathbf{0_{5 \times 5}}
+\mathbf{0_{3 \times 3}}
 \end{matrix} &
 \begin{matrix}
-\mathbf{0_{5 \times 5}}
+\mathbf{0_{3 \times 3}}
 \end{matrix} &
 \begin{matrix}
 \mathbf{F}
 \end{matrix}
 \end{pmatrix}$$
-and $\mathbf{w}$ a zero mean white gaussian noise of assumed known covariance matrix $$ \mathbf{Q}(k) = E[ \mathbf{w}(k) \mathbf{w}(k)^T].$$ For  this 6 DOF object let's assume that $$\mathbf{F}=
+and $\mathbf{w}$ a zero mean white gaussian noise of assumed known covariance matrix $$ \mathbf{Q}(k) = E[ \mathbf{w}(k) \mathbf{w}(k)^T].$$ For  this 3 DOF object let's assume that $$\mathbf{F}=
 \begin{pmatrix}
-1 & dt & \frac{dt^2}{2} & 0 & 0 \\
-0 & 1 & dt & 0 & 0 \\
-0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1 & dt \\
-0 & 0 & 0 & 0 & 1 \\
-\end{pmatrix}$$.  This model allows to estimate the next state from the actual state. Actually, that's obviously not enough to have a good estimation if $dt$ becames to big or if the model can't rectify his state from a measurement. The kalman filter can rectify the state from a measurement 
+1 & dt & \frac{dt^2}{2} \\
+0 & 1 & dt \\
+0 & 0 & 1
+\end{pmatrix}$$.  This model allows to estimate the next state from the actual state. Actually, that's obviously not enough to have a good estimation if $dt$ becomes too big or if the model can't rectify his state from a measurement. The Kalman filter can rectify the state from a measurement 
 \begin{equation}
 \mathbf{y}(k) = \mathbf{C} \mathbf{X}(k) + \mathbf{b}(k)
-\end{equation} where $ \mathbf{C}$ is the measurement matrix and $\mathbf{b}$ is a white gaussian observation noise with zero mean and with assumed known covariance matrix
+\end{equation} where $ \mathbf{C}$ is the measurement matrix and $\mathbf{b}$ is a white Gaussian observation noise with zero mean and with an assumed known covariance matrix
 \begin{equation}
 \mathbf{R}(k) = E[ \mathbf{b}(k) \mathbf{b}(k)^T]
-\end{equation} The matrix $\mathbf{C}$ depends on the sensor which feeding the kalman filter. For no measurement $\mathbf{C} = \mathbf{0_{12 \times 12}}$, for a measurement the matrix $\mathbf{C}$ have ones corresponding to each measurements. With this feeding from measurements the state can be evaluated as :
+\end{equation} The matrix $\mathbf{C}$ depends on the sensor which is feeding the kalman filter. For no measurement $\mathbf{C} = \mathbf{0_{3 \times 9}}$, for a measurement the matrix $\mathbf{C}$ have ones corresponding to each measurements. With this feeding from measurements the state can be evaluated as :
 \begin{equation}
  \begin{matrix}
 \hat{\mathbf{x}}(k|k) = \hat{\mathbf{x}}(k|k-1) +\\ \mathbf{K}(k)[\mathbf{y}(k)-\mathbf{C}\hat{\mathbf{x}}(k|k-1)]
 \end{matrix}   
 \end{equation}
- where $\mathbf{K}$ is the kalman gain. There is many integration of kalman filter on c++ language. In our case, $dt$ is not a constant. It depends on many factors like the final rate we want for kalaman estimation, also it depends on the measurement rate which is chaotic because of the using of several sensors and also because of the occlusions which destroy measurements. All this constraints can easily be manage in c++ by using an object which contains all the kalman filter information. Then, the algorithm can update the filter depends on the case : \\ - update without measurement \\ - update with positions measurements from the LEDs and light house system \\ - update with measurements from the IMU
-
-\section{Modelling \& simulation}
-\label{Sim}
+ where $\mathbf{K}$ is the kalman gain. There is many integration of kalman filter on c++ language. In our case, $dt$ is not a constant. It depends on many factors like the final rate we want for kalaman estimation, also it depends on the measurement rate which is chaotic because of the using of several sensors and also because of the occlusions which destroy measurements. All this constraints can easily be manage in C++ by using an object which contains all the kalman filter information. Then, the algorithm can update the filter depends on the case : \\ - update without measurement \\ - update with positions measurements from the LEDs and light house system \\ - update with measurements from the IMU
 
 
-%GUI presentation
 
-For the simulation the model presented in section 3 has been simplified. In order to have concrete results in a short time the measurements has been reduced to the positions from the LEDs/light house system and to the accelerations from the IMU. All this measurements are actually computed measurements in simulation. Let's explain how this computed measurements have been generated.
+\section{Framework and simulation} \label{FS}
 
-\subsection{Graphical User Interface}
-\label{GUI}
-The objective of the simulation is to first create a 3D model for a better visualization, and then to provide pre-measurements of what can be expected from real data. The GUI for Graphical User Interface can do both. The room is represented by a box, the LightHouses by two sphere on the two top corners and the object by a sphere initialy at the center. The scanning is represented by colored spheres turning around the LightHouses. These spheres actually represent the normal vector of the plan of the scanning as explained in section 2. \newline
-\begin{figure}
-\centering
-    \includegraphics[height=0.4\textheight]{Image/sphere.png}
-    \caption{Spherical coordinate representation.}
-    \label{SC1}
-\end{figure}
-To obtain the time between the initial flash and the scanning, the algorithm will start a timer after the flash. And it will acquire the time when the scalar product between the LightHouse-Object vector (that is only known by the algorithm) and the normal vector is the smallest, since the normal vector changes with time. A zero scalar product means that the object is in the scanning plan, since that exact moment cannot be detected, taking the smallest value is a good approximation of that moment. After that step, we can easily get the angles with a simple cross product, since we know the time of a full scanning.
-\begin{equation}
-\label{angle_calculus}
-    \theta~=~\displaystyle\frac{\tau~\pi}{T}
-\end{equation} where $\theta$ is the angle as it can be seen in figure [\ref{SC1}], $\tau$ the acquired time and $T$ the time for a full scanning (that is eqaul to $8.333 \mu s$ as seen before). After the obtaining of the four angles, by using the spherical coordinate obtained with [\ref{spherique}], the vector LightHouse-object can be obtained. Then, since the position and the orientation of the lighthouses is known, the algorithm can compute the localization of the object in the room.
-    $$x~=~sin(\phi)cos(\theta)$$
-\begin{equation}
-\label{spherique}
-    y~=~sin(\phi)~sin(\theta)
-    \end{equation}
-    $$z~=sin((\phi)$$
-The vector LightHouse-object is first defined in the Lighthouse landmark, but is then returned in the world landmark by doing the same rotation and translation the lighthouse had for it to be in its actual position. Doing this transformation ensure that every value given is in the world landmark, witch will eliminate any source of confusion about the position. Technically, this had to be done with the calibration of the lighthouses between them, but in the simulation, the rotation is known from the beginning (same thing for the translation).
-\subsection{Object localization from photo-diode}
-\label{Obj}
-Localizing the object in 3D space with this method ends up with the calculus of the point of intersection of two lines. From the previous data, the problem can be seen as two points (Position of the LightHouses) and two vectors (the Lighthouse-object vector obtained thanks to the angles by using [\ref{angle_calculus}] and [\ref{spherique}]). From two points and vector: two lines. From two lines: one point that will be the position of the object. \newline
-However, if in the theory this point exist exactly, it is really rare that two lines intersect in a 3D space. And since the scanning moment is approximated, the intersection point will be approximated too. The trick to compute this non-existent point is to find a third line that is perpendicular to the two lines. The intersection point will then be the middle of this line (see figure[\ref{inter}]).
-\begin{figure}
-\centering
-\includegraphics[width=1.0\columnwidth]{Image/interscetion.png}
-\caption{Non-existent intersection point trick where $A$ and $B$ are the two lightHouses and $MN$ the perpendicular line. \cite{cedric}}
-\label{inter}
-\end{figure}
-Let $A$ and $B$ be the lighthouse coordinate and $u$ and $v$ their respectiv LightHouse-object vector. The two lines that come from these values (the red nand the blue in [\ref{inter}]) are represented by:
-$$ A  + \lambda u $$ and $$B + \nu v$$ with $\lambda,\nu \in R$. 
-The points $M$ and $N$ are characterized by the fact that the vector $MN$ is orthogonal to the two starting lines, or, equivalently, to the vectors u and v. To calculate them, we can write $M~=~A~+~\lamda~u$ and $N~=~ B ~+~ \nu~v$ so that $MN~=~ AB~+~ \nu v~-~\lambda u$. The two orthogonality conditions with the scalar product are:
-$$<MN,u> = 0$$
-$$<MN,v> = 0
-$$
-There is then two equation with two unknown that are $\lambda$ and $\nu$. Since the middle of the $MN$ is the most representative point for this probleme, the coordinate $I$ that represents the estimated position of the object will be:
+To create the Graphic User Interface (GUI), we will use OpenFramework which is an OpenSource library allowing 3D modeling in C++ language. First, we will create the environment by defining the room and also a configuration panel. Then, we will show how the LTS and the accelerometer are simulated; and finally, the simulation of the sensor fusion.
 
-$$
- I ~=~[ (a1 ~+ ~b1~ +~ \lambda u1 ~+~ \nu v1) / 2~ ,~   (a2 + b2 + \lambda u2 + \nu v2) / 2 ~,$$
- $$~ (a3~ +~ b3~ +~ \lambda u3 ~+~ \nu v3) / 2 ]
- $$
- 
- \subsection{Object localization from the acceleration}
- The results obtained from the photo-diode is precised but takes too much time, a total of $35 \mu s $ to get the complete position of the object. To be able to estimate the position of the object in this time-lapse, the acceleration can be obtained by deriving twice the position obtained thanks to the photo-diodes and estimate the position of the object with it while it get the precise value of the position given again by the photo-diode. This position is obtained at each time by integrating it twice. Figure [\ref{axel}] shows how this method works.
- \begin{figure}
- \centering
-\includegraphics[width=1.0\columnwidth]{Image/axel.png}
-\caption{Estimated position with the accelerometer and the photo-diode throw time. While the algorithm waits for the precise position of the object, it compute it with the values of the accelerometer}
-\label{axel}
-\end{figure}
-\section{Results}
+\subsection{Framework} \label{Frame}
 
-In this section we will show you the results obtained with our algorithm. We used OpenFramework for the GUI. Since the simulation of $35 \mu s $ won't allow us to see anything, a full positioning is done in 10 seconds. Figure [\ref{g1}] and [\ref{g2}] shows the simulated world, on the top corner we can see the two lighthouses, the colored balls around it are the normal vector of the plan that we mentioned in section 4.1 and the two balls in the box are the true position (white ball) and the estimated position (blue ball). There are also other values of the dimension of the box and the exact position of the two balls. We can see that estimated position is really close to the real position. However, the more far we go from the lighthouses, the less precise it became.
- \begin{figure}
-\includegraphics[width=1.0\columnwidth]{Image/GUI2.png}
-\caption{Simulation of the room, where the white ball represents the exact position of the object and the blue one its estimated position with the lighthouse.}
-\label{g1}
+Our framework will be a room represented by a box whom dimensions can be modified with a control panel. In this room, there will be the object and the lighthouses. The Lighthouses will always be in the top opposite corner of the room, changing the dimension of the room will therefor change the position of the lighthouses. The position of the object can also be changed by the control panel. A representation of the simulation is given in figure [\ref{im:gui}].\newline
+
+The dimension of the rooms are represented by pixels. The highest dimension of a room that we can use on OpenFramework is 2000 pixels per dimension. Above that, the simulation goes crazy and is unstable. A conventional small room is 5*5 meter square, which means that one pixel represent $0.25 cm$, which will be our precision.
+
+\begin{figure}[h!]
+  \includegraphics[scale = 0.24]{Image/gui3.png}
+  \caption{Visualization of the room created Graphic User Interface (GUI) with OpenFrameworks. The object is in the center of the room, the lighthouses can be seen in it corners and the control panel is in the top left of the picture. The red sphere represent the normal to the plan vector of the sweeping plan. This vector is the one transforming the position of the emitting lighthouse to the red sphere.}
+  \label{im:gui}
 \end{figure}
 
- \begin{figure}
- \centering
-\includegraphics[width=1.0\columnwidth]{Image/GUI1.png}
-\caption{Simulation of the room, where the white ball represents the exact position of the object and the blue one its estimated position with the lighthouse.}
-\label{g2}
+
+
+%la piece defini en patron, panel de config...
+\subsection{Sensors simulation} \label{Sim}
+Since the framework is now well defined, we need to simulate the sensors, i.e the lighthouse and the accelerometer.
+\subsubsection*{Simulation of the lighthouses}
+In our framework, lighthouses are represented by spheres positioned in the top opposite corner of the room. The spheres are originally black, and become white whenever a flash occurs. The object is also represented by a white sphere in the middle of the room, but the position can be changed by the panel introduced in section \ref{Frame}.  \newline
+The scanning of the room is defined by a normal vector of the sweeping plan (there are two normal vector for each plan, in our case, it doesn't matter which one we take) and the position of the emitting lighthouse, i.e a point. Two vectors are then used to obtain the moment when the sweeping plan passes through the object. One of them is the normal to plan vector that will rotate along side with the sweeping plan (and that can be seen in figure [\ref{im:gui}] as the red sphere); the other one is the Lighthouse-Object vector. This second vector is only known in the simulation, since we want to obtain the position of the object. However, this information is only used to obtain the moment when the sweeping plan passes through the object and is not used as a data as is. That moment is then obtained by looking at the scalar product between these two vectors. Indeed, when the scalar product is equal to zero, it means that the object is currently in the sweeping plan. In our simulation, that moment is obtained when the scalar product is the smallest (since it is hard to obtain the moment when it's exactly equal to 0). Figure [\ref{im:scalar}] shows an example of the scalar product obtained from one sweeping.
+
+\begin{figure}[h!]
+  \includegraphics[scale = 0.21]{Image/scalaire.png}
+  \caption{Evolution of the scalar product between the Lighthouse-object vector and the normal to the plan vector through time. We consider that the time when this value is the lowest as the moment the sweeping plan passes through the object. In this situation, the object is in the middle of the room.}
+  \label{im:scalar}
 \end{figure}
 
-As said before, time is a critical value for this method. The function to obtain the time is $getTime$ which gets the time from the computer. Thus, the value obtained is never the same for the exact same position. It means that the precision of the simulation depends directly on the power of calculus of the computer. If we want to simulate the whole position computing in 1 second, the results will be really bad. \newline
-This imprecision leads to another imprecision that we mentioned before. Indeed, we cannot get exactly the moment that the scanning plan pass throw the object and the scalar product between the LightHouse-object vector and the normal to the plan vector will most likely never be obtained at its true values (see figure [\ref{scal}]).
+The obtaining of the time after the four sweeping will allows us to obtain the four angles as wanted. We then use spherical coordinate to obtain two Lighthouse-Object vector from the two lighthouses. These vectors combined with their respective lighthouses will lead to the obtaning of the lines, and the intersection of the two lines will be the position of the object. \newline
+However, it is really rare that two lines intersect each other in a 3D space. So we need an approximation of that point and one method consist of finding a third line perpendicularly intersecting the two first lines and then consider the point between the two intersected point of the lines as the position of the object. Figure [\ref{im:intersection}] illustrates better how this point is obtained.
 
- \begin{figure}
- \centering
-\includegraphics[width=1.0\columnwidth]{Image/scalaire.png}
-\caption{Evolution of the scalar product between the LightHouse-object vector and the normal to the plan vector throw time, in a case where the object is around the middle of the room}
-\label{scal}
+\begin{figure}[h!]
+  \includegraphics[scale = 0.92]{Image/interscetion.png}
+  \caption{Illustration of the method used to compute the closest approximation of the intersection of two lines in 3D space. In our situation, $A$ and $B$ are the lighthouses, and the object will be in the middle the $MN$ segment}
+  \label{im:intersection}
 \end{figure}
 
-At this step, we have a precise but slow 3D positioning. We now wants to use the Kalman Filter introduced to you in section 3. Figure below show a typical response of each sensors and of the kalman filter : \\
 
-\includegraphics[width=1.0\columnwidth]{Image/graphes2.png}
-
-We can see that the kalman filter response worse than the scan response. That is due to a bad tuning of the Kalman filter because of the lack of time. However, we can see as expected that the position derived from the photo-diode sensor is precise but slow. We can expect good prospects for improvement with a better tunning of the filter. Above all, the Kalman filter will be easier to tune as the GUI is now easy to use. 
+\subsubsection*{Simulation of the accelerometer}
+The values obtained from the accelerometers are obtained by derivating twice the position of the object. We add an error at that moment and then move the object according to the value obtained by integrating it twice.
 
 
 
+\subsection{Fusion} \label{Fusion} 
+
+We use Eigen library to implement the Kalman Filter. During the simulation, Kalman filter is first initialized with values equal to zero. Every time we obtain new values from the accelerometer or from the LTS, we update the Kalman filters. It means we update: the command Matrix $C$ that indicates what type of measurements do we have (position, speed or acceleration), the elapsed time from the last update and the noise covariance matrix. \newline
+The noise covariance Matrix of the position is obtained from the mean of 20 tests made in the simulation. It values can be seen in the matrix below.
+
+$$\begin{pmatrix}
+0.5901 & -0.0280 & 0.3103 \\
+-0.0280 & 0.4582 & -0.0732 \\\
+0.3103 & -0.0732 & 0.4489
+\end{pmatrix}$$
+
+The noise covariance matrix is harder to estimate because of its dependence with the time. We decided to define it as an identity Matrix multiplied by 1000 to reduce its importance regarding to the measurements of the lighthouse.
+\section{Results} \label{Res}
+This section shows the results obtained from the simulation. Figure [\ref{im:visu}] shows 4 balls, each representing one position computed by the simulator. White is the real position, blue the one obtained only with the LTS, red the position estimated from the accelerometters only and green is the position of obtained from the fusion
+\begin{figure}[h!]
+  \includegraphics[scale = 0.7]{Image/Visulaisation.png}
+  \caption{Closer representation of the object and their estimated position in the simulation. The white ball represent the real position, the blue one represent the position estimated from the Lighthouse Tracking System, the red one represents the position of the object estimated with the accelerometter only and the green ball represents the position estimated from the sensor fusion.}
+  \label{im:visu}
+\end{figure}
+
+What is interesting to look at is the evolution of the position of the object trough time. Figure [\ref{im:res}] shows  the position of the object and with each position estimated.
+\begin{figure}[h!]
+  \includegraphics[scale = 0.15]{Image/ResultKalman.jpg}
+  \caption{Evolution of the position of the objects through time. Each plot compares the real position with one of the position estimator.}
+  \label{im:res}
+\end{figure}
+
+As it can be seen, the LTS is slowly updated but pretty precise, the accellerometter follows the object faster but tends to increase its error with time. The fusion gives the fastest and the most precise values, since it is updated faster and eliminate the accumulation of error of the accellerometter.
 % The following two commands are all you need in the
 % initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
