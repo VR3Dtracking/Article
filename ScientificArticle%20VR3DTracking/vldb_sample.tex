@@ -259,7 +259,7 @@ The values obtained from the accelerometers are obtained by derivating twice the
 \subsection{Fusion} \label{Fusion} 
 
 We use Eigen library to implement the Kalman Filter. During the simulation, Kalman filter is first initialized with values equal to zero. Every time we obtain new values from the accelerometer or from the LTS, we update the Kalman filters. It means we update: the command Matrix $C$ that indicates what type of measurements do we have (position, speed or acceleration), the elapsed time from the last update and the noise covariance matrix. \newline
-The noise covariance Matrix of the position is obtained from the mean of 20 tests made in the simulation. It values can be seen in the matrix below.
+The noise covariance Matrix of the position acquired from the LTS is obtained from the mean of 20 tests made in the simulation. It values can be seen in the matrix below.
 
 $$\begin{pmatrix}
 0.5901 & -0.0280 & 0.3103 \\
@@ -271,7 +271,7 @@ The noise covariance matrix is harder to estimate because of its dependence with
 \section{Results} \label{Res}
 This section shows the results obtained from the simulation. Figure [\ref{im:visu}] shows 4 balls, each representing one position computed by the simulator. White is the real position, blue the one obtained only with the LTS, red the position estimated from the accelerometters only and green is the position of obtained from the fusion
 \begin{figure}[h!]
-  \includegraphics[scale = 0.7]{Image/Visulaisation.png}
+  \includegraphics[scale = 0.65]{Image/Visulaisation.png}
   \caption{Closer representation of the object and their estimated position in the simulation. The white ball represent the real position, the blue one represent the position estimated from the Lighthouse Tracking System, the red one represents the position of the object estimated with the accelerometter only and the green ball represents the position estimated from the sensor fusion.}
   \label{im:visu}
 \end{figure}
